@@ -32,6 +32,42 @@
             }
           }
         }
+      },
+      "post": {
+        "summary": "createProduct",
+        "description": "",
+        "operationId": "createProduct.post.products",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Body required in the request",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Product"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful API response",
+            "schema": {
+              "$ref": "#/definitions/SuccessfulResponse"
+            }
+          },
+          "500": {
+            "description": "Failed API response",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
       }
     },
     "/products/{id}": {
@@ -124,6 +160,20 @@
       ],
       "additionalProperties": false,
       "title": "ErrorResponse",
+      "type": "object"
+    },
+    "SuccessfulResponse": {
+      "properties": {
+        "message": {
+          "title": "SuccessfulResponse.message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message"
+      ],
+      "additionalProperties": false,
+      "title": "SuccessfulResponse",
       "type": "object"
     }
   },

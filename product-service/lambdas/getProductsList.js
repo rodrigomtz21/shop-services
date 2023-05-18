@@ -1,18 +1,51 @@
-const Responses = require('./APIResponses');
-const products = require('./productsMockData');
+const Responses = require("./APIResponses");
+const AWS = require("aws-sdk");
 
-const getProductsList = async() => {
-  // For now it is just returning a list of mock data
-  return products;
-}
+const dynamo = new AWS.DynamoDB.DocumentClient();
 
-module.exports.handler = async(event) => {
+const getProductsList = async () => {
+  const products = await dynamo
+    .scan({
+      TableName: process.env.PRODUCTS_TABLE,
+    })
+    .promise();
+
+  return products.Items;
+};
+
+const getStocksList = async () => {
+  const stocks = await dynamo
+    .scan({
+      TableName: process.env.STOCKS_TABLE,
+    })
+    .promise();
+
+  return stocks.Items;
+};
+
+const getProductsWithStock = async () => {
+  const products = await getProductsList();
+  const stocks = await getStocksList();
+  return products.map((product) => {
+    let stock = stocks.find((stock) => product.id === stock.product_id);
+    let stockValue = stock ? stock.count : 0;
+    return { ...product, count: stockValue };
+  });
+};
+
+module.exports.handler = async (event) => {
+  console.log("Request: ", event);
   let response;
   try {
-    const result = await getProductsList();
-    response = Responses._200(result);
+    const result = await getProductsWithStock();
+    if (result) {
+      response = Responses._200(result);
+    } else {
+      response = Responses._400({ message: "Products not found!" });
+    }
   } catch (error) {
-    response = Responses._400({message: "Products not found!"});
+    console.log("error:", error);
+    return Responses._500({ message: "Something was wrong!", error });
   }
   return response;
 };
