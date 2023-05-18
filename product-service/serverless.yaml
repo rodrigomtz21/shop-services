@@ -15,39 +15,68 @@ provider:
   stage: dev
   #TIP  this is my personal AWS account. This must be skipped in you serverless.yml
   #profile: AWSPractitioner  #RER-DEV #TODO put the root profiles keys as default
-
+  environment:
+    PRODUCTS_TABLE: products
+    STOCKS_TABLE: stocks
+  iam:
+    role:
+      statements: # permissions for all of your functions can be set here
+        - Effect: Allow
+          Action: # Gives permission to DynamoDB tables in a specific region
+            - dynamodb:DescribeTable
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: "arn:aws:dynamodb:us-east-2:*:*"
 plugins:
   - serverless-auto-swagger
   - serverless-webpack
 
 ## Lambda functions configuration
-functions:  
+functions:
   getProductsList:
     handler: lambdas/getProductsList.handler
     events:
-    - http:
-        path: products
-        method: get
-        responses:
-          200:
-            description: 'Successful API response'
-            bodyType: 'Products'
-          500:
-            description: 'Failed API response'
-            bodyType: 'ErrorResponse'
+      - http:
+          path: products
+          method: get
+          responses:
+            200:
+              description: "Successful API response"
+              bodyType: "Products"
+            500:
+              description: "Failed API response"
+              bodyType: "ErrorResponse"
   getProductsById:
     handler: lambdas/getProductsById.handler
     events:
-    - http:
-        path: products/{id}
-        method: get
-        responses:
-          200:
-            description: 'Successful API response'
-            bodyType: 'Product'
-          500:
-            description: 'Failed API response'
-            bodyType: 'ErrorResponse'
+      - http:
+          path: products/{id}
+          method: get
+          responses:
+            200:
+              description: "Successful API response"
+              bodyType: "Product"
+            500:
+              description: "Failed API response"
+              bodyType: "ErrorResponse"
+  createProduct:
+    handler: lambdas/createProduct.handler
+    events:
+      - http:
+          path: products
+          method: post
+          bodyType: "Product"
+          responses:
+            200:
+              description: "Successful API response"
+              bodyType: "SuccessfulResponse"
+            500:
+              description: "Failed API response"
+              bodyType: "ErrorResponse"
 
 custom:
   ## Serverless webpack configuration

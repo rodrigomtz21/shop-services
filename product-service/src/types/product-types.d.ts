@@ -11,3 +11,7 @@ export type Products = Array<Product>;
 export interface ErrorResponse {
   message: string;
 }
+
+export interface SuccessfulResponse {
+  message: string;
+}
